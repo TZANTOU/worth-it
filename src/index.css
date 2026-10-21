@@ -49,7 +49,7 @@ a {
 .top {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 8px 24px;
   margin-bottom: 40px;
@@ -63,6 +63,46 @@ a {
 .summary {
   margin: 0;
   color: var(--ink-soft);
+  flex-basis: 100%;
+}
+
+/* ---------- Scene picker ---------- */
+
+.scene-picker {
+  display: flex;
+  border: var(--line) solid var(--ink);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.scene-picker button {
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--ink);
+  background: transparent;
+  border: none;
+  padding: 6px 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.scene-picker button + button {
+  border-left: var(--line) solid var(--ink);
+}
+
+.scene-picker button[aria-pressed='true'] {
+  color: var(--paper);
+  background: var(--ink);
+}
+
+.scene-picker svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .summary strong {
@@ -84,19 +124,11 @@ main {
   color: var(--ink-soft);
 }
 
-/* ---------- The shelf ---------- */
-
-.shelf {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  row-gap: 32px;
-}
+/* ---------- Gadgets (shared by every scene) ---------- */
 
 .gadget {
   all: unset;
+  position: relative;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -106,15 +138,6 @@ main {
 .gadget:focus-visible .gadget-stage {
   outline: 1px dashed var(--ink);
   outline-offset: 4px;
-}
-
-/* Each stage carries a piece of the ground line; side by side they read as one line. */
-.gadget-stage {
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  height: 128px;
-  border-bottom: var(--line) solid var(--ink);
 }
 
 .gadget-art {
@@ -137,47 +160,6 @@ main {
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
   animation: draw 1.1s ease-out forwards;
-}
-
-.gadget-label {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: 10px 8px 0;
-  text-align: center;
-}
-
-.gadget-name {
-  font-size: 0.85rem;
-  line-height: 1.25;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.gadget-percent {
-  font-family: 'Caveat', cursive;
-  font-size: 1.5rem;
-  line-height: 1;
-}
-
-.verdict-paid-off .gadget-percent,
-.verdict-on-track .gadget-percent {
-  color: var(--good);
-}
-
-.verdict-gathering-dust .gadget-percent {
-  color: var(--bad);
-}
-
-.gadget-add {
-  color: var(--ink-soft);
-}
-
-.gadget-add .ink {
-  stroke-dasharray: 0;
 }
 
 /* ---------- Hover: a little comic motion ---------- */

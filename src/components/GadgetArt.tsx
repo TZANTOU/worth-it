@@ -99,7 +99,7 @@ interface Props {
   size?: number
 }
 
-export function GadgetArt({ category, size = 110 }: Props) {
+export function GadgetArt({ category, size }: Props) {
   return (
     <svg className="gadget-art" viewBox="0 0 100 100" width={size} height={size} aria-hidden="true">
       <g className="ink" filter="url(#hand-drawn)">

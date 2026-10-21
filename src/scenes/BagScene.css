@@ -1,0 +1,257 @@
+/*
+ * The bag: a dark tech pouch. It flips the ink and paper colours, so the same drawings
+ * turn into light lines on dark fabric without any change to the art itself.
+ */
+
+.bag {
+  --ink: #e4ecdf;
+  --ink-soft: #8d998f;
+  --paper: #1c2420;
+  --paper-deep: #252f2a;
+  --good: #8fe0a2;
+  --bad: #f2937a;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  color: var(--ink);
+  background: var(--paper);
+  border: var(--line) solid #1f2b23;
+  border-radius: 22px;
+  box-shadow: 6px 6px 0 #1f2b23;
+  overflow: hidden;
+}
+
+/* ---------- Zipper ---------- */
+
+.bag-zip {
+  position: relative;
+  height: 22px;
+  border-bottom: var(--line) solid var(--ink-soft);
+  background:
+    repeating-linear-gradient(90deg, var(--ink-soft) 0 3px, transparent 3px 7px) center / 100% 8px no-repeat,
+    var(--paper-deep);
+}
+
+.bag-zip-pull {
+  position: absolute;
+  right: 48px;
+  top: 4px;
+  width: 14px;
+  height: 30px;
+  border: var(--line) solid var(--ink);
+  border-radius: 7px 7px 4px 4px;
+  background: var(--paper);
+  z-index: 1;
+}
+
+/* ---------- Inside ---------- */
+
+.bag-inside {
+  padding: 28px 20px 24px;
+  /* Faint dotted grid, like a cutting mat. */
+  background: radial-gradient(circle, color-mix(in srgb, var(--ink-soft) 35%, transparent) 1px, transparent 1.5px) 0 0 / 18px 18px;
+}
+
+.bag-readout {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0 0 20px;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  color: var(--ink-soft);
+}
+
+.bag-grid {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 14px;
+}
+
+/* ---------- A compartment ---------- */
+
+.bag-slot .gadget {
+  position: relative;
+  align-items: center;
+  height: 210px;
+  padding: 28px 12px 12px;
+  box-sizing: border-box;
+  border: var(--line) solid var(--ink-soft);
+  border-radius: 12px;
+  background: var(--paper-deep);
+  transition: border-color 0.15s;
+}
+
+/* Stitching just inside the edge. */
+.bag-slot .gadget::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border: 1px dashed color-mix(in srgb, var(--ink-soft) 60%, transparent);
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+/* HUD corner brackets, drawn in on hover. */
+.bag-slot .gadget::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(1.04);
+  transition:
+    opacity 0.15s,
+    transform 0.15s;
+  --c: var(--good);
+  background:
+    linear-gradient(var(--c), var(--c)) top left / 14px 2px,
+    linear-gradient(var(--c), var(--c)) top left / 2px 14px,
+    linear-gradient(var(--c), var(--c)) top right / 14px 2px,
+    linear-gradient(var(--c), var(--c)) top right / 2px 14px,
+    linear-gradient(var(--c), var(--c)) bottom left / 14px 2px,
+    linear-gradient(var(--c), var(--c)) bottom left / 2px 14px,
+    linear-gradient(var(--c), var(--c)) bottom right / 14px 2px,
+    linear-gradient(var(--c), var(--c)) bottom right / 2px 14px;
+  background-repeat: no-repeat;
+}
+
+.bag-slot .gadget:hover,
+.bag-slot .gadget:focus-visible {
+  border-color: var(--ink);
+}
+
+.bag-slot .gadget:hover::after,
+.bag-slot .gadget:focus-visible::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.bag-slot .gadget-stage {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  flex: 1;
+  min-height: 0;
+}
+
+.bag-slot .gadget-art {
+  width: 104px;
+  height: 104px;
+}
+
+/* An elastic strap holding the gadget in; it slips out from under it on hover. */
+.bag-strap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 112px;
+  height: 16px;
+  border-top: var(--line) solid var(--ink-soft);
+  border-bottom: var(--line) solid var(--ink-soft);
+  background: repeating-linear-gradient(90deg, transparent 0 5px, color-mix(in srgb, var(--ink-soft) 25%, transparent) 5px 6px),
+    color-mix(in srgb, var(--paper-deep) 80%, transparent);
+  pointer-events: none;
+}
+
+.bag-slot .gadget:hover .gadget-stage {
+  z-index: 1;
+}
+
+/* ---------- Labels ---------- */
+
+.bag-tag {
+  position: absolute;
+  top: 10px;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+}
+
+.bag-tag-code {
+  left: 14px;
+  color: var(--ink-soft);
+}
+
+.bag-tag-score {
+  right: 14px;
+}
+
+.verdict-paid-off .bag-tag-score,
+.verdict-on-track .bag-tag-score {
+  color: var(--good);
+}
+
+.verdict-gathering-dust .bag-tag-score {
+  color: var(--bad);
+}
+
+.bag-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding-top: 10px;
+}
+
+.bag-name {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bag-slot .meter {
+  width: 80%;
+}
+
+/* ---------- Empty slot ---------- */
+
+.bag-slot-empty .gadget {
+  justify-content: center;
+  border-style: dashed;
+  background: transparent;
+}
+
+.bag-slot-empty .gadget::before {
+  display: none;
+}
+
+.bag-empty-text {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  color: var(--ink-soft);
+}
+
+.bag-slot-empty .gadget:hover .bag-empty-text {
+  color: var(--ink);
+}
+
+@media (max-width: 560px) {
+  .bag-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .bag-inside {
+    padding: 20px 12px;
+  }
+  .bag-slot .gadget-art {
+    width: 84px;
+    height: 84px;
+  }
+  .bag-strap {
+    top: 96px;
+  }
+}

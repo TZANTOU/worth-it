@@ -1,0 +1,173 @@
+/* The room: a fixed 5:3 drawing that scrolls sideways on small screens instead of shrinking away. */
+
+.room-scroll {
+  overflow-x: auto;
+  /* Room for speech bubbles above the top shelf. */
+  padding-top: 64px;
+  margin-top: -32px;
+}
+
+.room {
+  position: relative;
+  aspect-ratio: 5 / 3;
+  min-width: 680px;
+}
+
+.room-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.room-item {
+  position: absolute;
+  transform: translateX(-50%);
+}
+
+.room-item:hover,
+.room-item:focus-within {
+  z-index: 2;
+}
+
+.room-item .gadget-art {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+}
+
+.room-item .gadget:focus-visible .gadget-stage {
+  outline-offset: 2px;
+}
+
+/* Gadgets gathering dust sit a little greyer in the room. */
+.room-item .verdict-gathering-dust .gadget-art {
+  opacity: 0.55;
+}
+
+.room-item .verdict-gathering-dust:hover .gadget-art {
+  opacity: 1;
+}
+
+/* ---------- Speech bubble ---------- */
+
+.bubble {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) scale(0.85);
+  transform-origin: 50% 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: max-content;
+  max-width: 200px;
+  padding: 6px 12px;
+  background: var(--paper);
+  border: var(--line) solid var(--ink);
+  border-radius: 16px;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity 0.15s ease-out,
+    transform 0.15s ease-out;
+}
+
+.bubble::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  background: var(--paper);
+  border-right: var(--line) solid var(--ink);
+  border-bottom: var(--line) solid var(--ink);
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.gadget:hover .bubble,
+.gadget:focus-visible .bubble {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
+.bubble-name {
+  font-size: 0.8rem;
+  line-height: 1.2;
+}
+
+.bubble-score {
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
+
+.bubble-score strong {
+  font-family: 'Caveat', cursive;
+  font-size: 1.2rem;
+  color: var(--ink);
+}
+
+.verdict-paid-off .bubble-score strong,
+.verdict-on-track .bubble-score strong {
+  color: var(--good);
+}
+
+.verdict-gathering-dust .bubble-score strong {
+  color: var(--bad);
+}
+
+/* ---------- Sticky note ---------- */
+
+.room-note {
+  all: unset;
+  cursor: pointer;
+  position: absolute;
+  left: 40%;
+  top: 14%;
+  width: 11%;
+  aspect-ratio: 1;
+  transform: rotate(-4deg);
+  display: grid;
+  place-items: center;
+  transition: transform 0.2s ease-out;
+}
+
+.room-note svg {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+
+.room-note span {
+  position: relative;
+  font-family: 'Caveat', cursive;
+  font-size: clamp(0.9rem, 1.6vw, 1.2rem);
+  line-height: 1;
+  text-align: center;
+  padding: 18% 10% 0;
+}
+
+.room-note:hover,
+.room-note:focus-visible {
+  transform: rotate(2deg) scale(1.05);
+}
+
+.room-note:focus-visible {
+  outline: 1px dashed var(--ink);
+  outline-offset: 4px;
+}
+
+/* ---------- Overflow ---------- */
+
+.room-overflow {
+  margin-top: 40px;
+}
+
+.room-overflow h2 {
+  font-size: 1.6rem;
+  margin-bottom: 16px;
+}

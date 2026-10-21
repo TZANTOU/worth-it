@@ -1,0 +1,60 @@
+/* The shelf: gadgets standing on one continuous ink line. */
+
+.shelf {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  row-gap: 32px;
+}
+
+/* Each stage carries a piece of the ground line; side by side they read as one line. */
+.shelf .gadget-stage {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  height: 128px;
+  border-bottom: var(--line) solid var(--ink);
+}
+
+.gadget-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 8px 0;
+  text-align: center;
+}
+
+.gadget-name {
+  font-size: 0.85rem;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.gadget-percent {
+  font-family: 'Caveat', cursive;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.verdict-paid-off .gadget-percent,
+.verdict-on-track .gadget-percent {
+  color: var(--good);
+}
+
+.verdict-gathering-dust .gadget-percent {
+  color: var(--bad);
+}
+
+.gadget-add {
+  color: var(--ink-soft);
+}
+
+.gadget-add .ink {
+  stroke-dasharray: 0;
+}
