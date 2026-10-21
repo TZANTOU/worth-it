@@ -11,6 +11,8 @@
   --good: #8fe0a2;
   --bad: #f2937a;
   --mono: 'JetBrains Mono', ui-monospace, monospace;
+  /* The zip runs inside the rounded corners; keep in sync with PAD in BagZip.tsx. */
+  --zip-pad: 22px;
 
   color: var(--ink);
   background: var(--paper);
@@ -22,33 +24,218 @@
 
 /* ---------- Zipper ---------- */
 
+/* --zip (0 closed … 1 open) is set on .bag; --zip-at is where the slider sits along the track. */
 .bag-zip {
+  --zip-at: calc(var(--zip-pad) + var(--zip) * (100% - 2 * var(--zip-pad)));
   position: relative;
-  height: 22px;
+  height: 24px;
   border-bottom: var(--line) solid var(--ink-soft);
-  background:
-    repeating-linear-gradient(90deg, var(--ink-soft) 0 3px, transparent 3px 7px) center / 100% 8px no-repeat,
-    var(--paper-deep);
+  background: var(--paper-deep);
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  z-index: 2;
 }
 
-.bag-zip-pull {
+/* Behind the slider: two loose rows of teeth with the dark inside showing between them. */
+.bag-zip-open {
   position: absolute;
-  right: 48px;
-  top: 4px;
+  left: 0;
+  width: var(--zip-at);
+  top: 3px;
+  bottom: 3px;
+  background:
+    repeating-linear-gradient(90deg, var(--ink-soft) 0 3px, transparent 3px 7px) top / 100% 4px no-repeat,
+    repeating-linear-gradient(90deg, transparent 0 3.5px, var(--ink-soft) 3.5px 6.5px, transparent 6.5px 7px) bottom /
+      100% 4px no-repeat,
+    linear-gradient(#0b100d, #0b100d) center / 100% 10px no-repeat;
+}
+
+/* Ahead of the slider: the teeth still locked together. */
+.bag-zip-closed {
+  position: absolute;
+  left: var(--zip-at);
+  right: 0;
+  top: 8px;
+  height: 8px;
+  background: repeating-linear-gradient(90deg, var(--ink-soft) 0 3px, transparent 3px 7px);
+}
+
+.bag-zip-slider {
+  position: absolute;
+  top: 3px;
+  left: var(--zip-at);
+  translate: -50% 0;
+  width: 26px;
+  height: 18px;
+  border: var(--line) solid var(--ink);
+  border-radius: 5px;
+  background: var(--paper);
+  cursor: grab;
+  outline: none;
+}
+
+.bag-zip-slider:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--good) 60%, transparent);
+}
+
+/* The pull tab hangs below the slider and swings as it moves. */
+.bag-zip-tab {
+  position: absolute;
+  top: 100%;
+  left: 50%;
   width: 14px;
   height: 30px;
+  margin: -2px 0 0 -7px;
   border: var(--line) solid var(--ink);
-  border-radius: 7px 7px 4px 4px;
+  border-radius: 3px 3px 7px 7px;
   background: var(--paper);
+  transform-origin: 50% 0;
+  /* Springs back past zero and settles, like a real tab. */
+  transition: rotate 0.7s cubic-bezier(0.3, 2.2, 0.45, 1);
+}
+
+.bag-zip-tab::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  bottom: 5px;
+  height: 9px;
+  border: 1px solid var(--ink-soft);
+  border-radius: 4px;
+}
+
+/* Moving to a clicked spot or a key press glides; dragging follows the pointer exactly. */
+.bag-zip-open,
+.bag-zip-closed,
+.bag-zip-slider,
+.bag-inside,
+.bag-seam {
+  transition-duration: 0.45s;
+  transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.bag-zip-open {
+  transition-property: width;
+}
+
+.bag-zip-closed,
+.bag-zip-slider,
+.bag-seam {
+  transition-property: left;
+}
+
+.bag-inside {
+  transition-property: clip-path;
+}
+
+.bag:has(.is-dragging) :is(.bag-zip-open, .bag-zip-closed, .bag-zip-slider, .bag-inside, .bag-seam) {
+  transition-duration: 0s;
+}
+
+.bag-zip.is-dragging,
+.bag-zip.is-dragging .bag-zip-slider {
+  cursor: grabbing;
+}
+
+.bag-zip.is-dragging .bag-zip-tab {
+  transition: rotate 0.12s ease-out;
+}
+
+/* ---------- Closed cover ---------- */
+
+.bag-body {
+  position: relative;
+}
+
+/* Plain woven fabric, seen wherever the bag is still zipped. */
+.bag-cover {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Near the top, so the patch is visible on a tall bag without scrolling. */
+  justify-content: flex-start;
+  padding-top: min(140px, 18%);
+  gap: 18px;
+  background:
+    repeating-linear-gradient(45deg, rgb(255 255 255 / 0.025) 0 2px, transparent 2px 6px),
+    repeating-linear-gradient(-45deg, rgb(0 0 0 / 0.12) 0 2px, transparent 2px 6px),
+    #18201c;
+}
+
+.bag-patch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 28px;
+  border: var(--line) solid var(--ink-soft);
+  border-radius: 10px;
+  outline: 1px dashed var(--ink-soft);
+  outline-offset: -7px;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  color: var(--ink-soft);
+}
+
+.bag-patch span:first-child {
+  font-size: 1rem;
+  color: var(--ink);
+}
+
+.bag-hint {
+  margin: 0;
+  font-family: 'Caveat', cursive;
+  font-size: 1.4rem;
+  color: var(--ink-soft);
+  animation: nudge 1.6s ease-in-out infinite;
+}
+
+@keyframes nudge {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 8px 0;
+  }
+}
+
+/* Where the open part meets the zipped part, the fabric edge casts a little shadow. */
+.bag-seam {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--zip-pad) + var(--zip) * (100% - 2 * var(--zip-pad)));
+  width: 18px;
+  translate: -100% 0;
+  background: linear-gradient(90deg, transparent, rgb(0 0 0 / 0.45));
+  border-right: var(--line) solid var(--ink-soft);
+  pointer-events: none;
   z-index: 1;
+  /* Fades out right at either end, where there is no seam to show. */
+  opacity: min(var(--zip) * 40, (1 - var(--zip)) * 40);
 }
 
 /* ---------- Inside ---------- */
 
 .bag-inside {
-  padding: 28px 20px 24px;
+  position: relative;
+  padding: 36px 20px 24px;
   /* Faint dotted grid, like a cutting mat. */
-  background: radial-gradient(circle, color-mix(in srgb, var(--ink-soft) 35%, transparent) 1px, transparent 1.5px) 0 0 / 18px 18px;
+  background:
+    radial-gradient(circle, color-mix(in srgb, var(--ink-soft) 35%, transparent) 1px, transparent 1.5px) 0 0 / 18px 18px,
+    var(--paper);
+  /* Only the unzipped part shows, revealed from the left as the zip moves right. */
+  clip-path: inset(0 calc(100% - (var(--zip-pad) + var(--zip) * (100% - 2 * var(--zip-pad)))) 0 0);
+}
+
+.bag-inside[inert] {
+  clip-path: inset(0 100% 0 0);
 }
 
 .bag-readout {
