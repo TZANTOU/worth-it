@@ -626,3 +626,229 @@ main {
     padding: 16px;
   }
 }
+
+/* ---------- Weekly check-in ---------- */
+
+.checkin {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  margin: -12px 0 40px;
+}
+
+.checkin-art {
+  flex-shrink: 0;
+  border-bottom: var(--line) solid var(--ink);
+  padding: 0 6px;
+}
+
+/* A speech bubble with its tail pointing back at the gadget. */
+.checkin-bubble {
+  position: relative;
+  flex: 1;
+  margin-bottom: 36px;
+  margin-left: 14px;
+  padding: 14px 18px 12px;
+  border: var(--line) solid var(--ink);
+  border-radius: 18px;
+  background: var(--paper);
+}
+
+.checkin-bubble::before {
+  content: '';
+  position: absolute;
+  left: -9px;
+  bottom: 18px;
+  width: 14px;
+  height: 14px;
+  background: var(--paper);
+  border-left: var(--line) solid var(--ink);
+  border-bottom: var(--line) solid var(--ink);
+  transform: rotate(45deg) skew(10deg, 10deg);
+}
+
+.checkin-question {
+  margin: 0 0 10px;
+  font-family: 'Caveat', cursive;
+  font-size: 1.6rem;
+  line-height: 1.1;
+}
+
+.checkin-answers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.checkin-answers .button {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+
+.checkin-answers .button:hover {
+  color: var(--paper);
+  background: var(--ink);
+}
+
+.checkin-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 10px 0 0;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.checkin-skip {
+  display: flex;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.checkin-skip .link-button {
+  margin: 0;
+}
+
+.checkin-saved {
+  color: var(--good);
+}
+
+.checkin-done {
+  margin: -12px 0 32px;
+  color: var(--good);
+  font-size: 0.9rem;
+}
+
+/* ---------- Check-in history (detail view) ---------- */
+
+.history {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--paper-deep);
+}
+
+.history-title {
+  margin: 0 0 10px;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.history-weeks {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.history-weeks li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.7rem;
+  color: var(--ink-soft);
+}
+
+.history-weeks svg {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+.history-weeks svg.unanswered rect {
+  stroke-dasharray: 2 3;
+  stroke: var(--ink-soft);
+}
+
+.history-answer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+}
+
+.chip {
+  font: inherit;
+  font-size: 0.8rem;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.chip[aria-pressed='true'] {
+  color: var(--paper);
+  background: var(--ink);
+}
+
+@media (max-width: 560px) {
+  .checkin {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .checkin-art {
+    align-self: flex-start;
+  }
+  .checkin-bubble {
+    margin: 14px 0 0;
+  }
+  .checkin-bubble::before {
+    left: 28px;
+    top: -9px;
+    bottom: auto;
+    border-bottom: none;
+    border-top: var(--line) solid var(--ink);
+  }
+}
+
+/* ---------- Header actions and sharing ---------- */
+
+.top-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.share-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+.share-button svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+a.button {
+  text-decoration: none;
+  display: inline-block;
+}
+
+.share-preview {
+  display: block;
+  width: 100%;
+  max-height: 62vh;
+  object-fit: contain;
+  border: 1px solid var(--paper-deep);
+  margin-bottom: 12px;
+}
+
+.share-note {
+  margin: 0 0 4px;
+  font-size: 0.85rem;
+  color: var(--good);
+}

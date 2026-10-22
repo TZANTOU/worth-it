@@ -1,5 +1,6 @@
-import type { GadgetDraft } from '../types'
+import type { CheckIn, GadgetDraft } from '../types'
 import { CATEGORIES, FREQUENCIES } from './categories'
+import { recentWeeks, USAGE_LEVELS, weekOf } from './checkIns'
 
 const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000
 
@@ -17,7 +18,9 @@ export interface Score {
   fulfilment: number
   hoursUsed: number
   hoursExpected: number
-  /** Actual weekly use divided by the expected weekly use for the category. */
+  /** Hours a week lately: from recent check-ins where there are any, otherwise the usual estimate. */
+  recentHoursPerWeek: number
+  /** Recent weekly use divided by the expected weekly use for the category. */
   pace: number
   /** What each hour of use has cost so far, after resale value; null before any use. */
   costPerHour: number | null
@@ -31,17 +34,41 @@ export interface Score {
 type ScoreInput = Pick<
   GadgetDraft,
   'category' | 'price' | 'purchaseDate' | 'frequency' | 'hoursPerSession' | 'resaleValue'
->
+> & { checkIns?: CheckIn[] }
+
+/** How many recent weeks of check-ins decide the current pace. */
+const RECENT_WEEKS = 8
 
 export function scoreGadget(g: ScoreInput, now: Date = new Date()): Score {
   const profile = CATEGORIES[g.category]
   const weeksOwned = Math.max(0, (now.getTime() - new Date(g.purchaseDate).getTime()) / MS_PER_WEEK)
-  const hoursPerWeek = FREQUENCIES[g.frequency].sessionsPerWeek * g.hoursPerSession
+  const usualHoursPerWeek = FREQUENCIES[g.frequency].sessionsPerWeek * g.hoursPerSession
+  const purchased = new Date(g.purchaseDate)
+  const firstWeek = weekOf(purchased)
+  const checkIns = (g.checkIns ?? []).filter((c) => c.week >= firstWeek && c.week <= weekOf(now))
 
-  const hoursUsed = weeksOwned * hoursPerWeek
+  // Every week owned counts at the usual rate, except weeks with a check-in, which count
+  // at the answered rate. The current week only counts for the part that has gone by.
+  let hoursUsed = weeksOwned * usualHoursPerWeek
+  for (const c of checkIns) {
+    const start = Math.max(new Date(`${c.week}T00:00`).getTime(), purchased.getTime())
+    const elapsed = Math.min(1, Math.max(0, (now.getTime() - start) / MS_PER_WEEK))
+    hoursUsed += (USAGE_LEVELS[c.level].factor - 1) * usualHoursPerWeek * elapsed
+  }
+  hoursUsed = Math.max(0, hoursUsed)
+
+  // Lately: average the last few weeks, answered weeks at their answer, the rest as usual.
+  const recent = recentWeeks(RECENT_WEEKS, now).filter((w) => w >= firstWeek)
+  const answered = new Map(checkIns.map((c) => [c.week, USAGE_LEVELS[c.level].factor]))
+  const hasRecentAnswers = recent.some((w) => answered.has(w))
+  const recentHoursPerWeek = hasRecentAnswers
+    ? (recent.reduce((sum, w) => sum + (answered.get(w) ?? 1), 0) / recent.length) * usualHoursPerWeek
+    : usualHoursPerWeek
+  const hoursPerWeek = recentHoursPerWeek
+
   const hoursExpected = profile.lifespanYears * 52 * profile.expectedHoursPerWeek
   const fulfilment = (hoursUsed / hoursExpected) * 100
-  const pace = hoursPerWeek / profile.expectedHoursPerWeek
+  const pace = recentHoursPerWeek / profile.expectedHoursPerWeek
 
   const netCost = Math.max(0, g.price - (g.resaleValue ?? 0))
   const costPerHour = hoursUsed > 0 ? netCost / hoursUsed : null
@@ -60,5 +87,15 @@ export function scoreGadget(g: ScoreInput, now: Date = new Date()): Score {
   else if (pace >= 0.35) verdict = 'could-do-better'
   else verdict = 'gathering-dust'
 
-  return { fulfilment, hoursUsed, hoursExpected, pace, costPerHour, weeksToPayoff, paysOffInLifetime, verdict }
+  return {
+    fulfilment,
+    hoursUsed,
+    hoursExpected,
+    recentHoursPerWeek,
+    pace,
+    costPerHour,
+    weeksToPayoff,
+    paysOffInLifetime,
+    verdict,
+  }
 }

@@ -8,6 +8,7 @@ import { Modal } from './Modal'
 import { GadgetArt } from './GadgetArt'
 import { GadgetForm } from './GadgetForm'
 import { Meter } from './Meter'
+import { CheckInHistory } from './CheckInHistory'
 
 export function GadgetDetail({ gadget, onClose }: { gadget: Gadget; onClose: () => void }) {
   const [editing, setEditing] = useState(false)
@@ -46,6 +47,7 @@ export function GadgetDetail({ gadget, onClose }: { gadget: Gadget; onClose: () 
           <Stat label="Paid" value={`${money(gadget.price)} · ${new Date(gadget.purchaseDate).toLocaleDateString()}`} />
           <Stat label="Use" value={`${FREQUENCIES[gadget.frequency].label}, ${hours(gadget.hoursPerSession)} each`} />
           <Stat label="Used so far" value={`${hours(s.hoursUsed)} of ~${hours(s.hoursExpected)}`} />
+          <Stat label="Lately" value={`${hours(s.recentHoursPerWeek)} a week`} />
           <Stat label="Cost per hour" value={s.costPerHour === null ? '—' : moneyPrecise(s.costPerHour)} />
           <Stat label="Pace" value={`${percent(s.pace * 100)} of a typical ${CATEGORIES[gadget.category].label.toLowerCase()}`} />
           <Stat
@@ -63,6 +65,8 @@ export function GadgetDetail({ gadget, onClose }: { gadget: Gadget; onClose: () 
           {gadget.resaleValue !== undefined && <Stat label="Resale value" value={money(gadget.resaleValue)} />}
         </dl>
       </div>
+
+      <CheckInHistory gadget={gadget} />
 
       <div className="form-actions">
         {confirmingDelete ? (

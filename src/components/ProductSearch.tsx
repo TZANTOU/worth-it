@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { searchProducts, type ProductHit } from '../lib/openProducts'
+import { searchProducts, type ProductHit } from '../lib/productSearch'
 import { CATEGORIES } from '../lib/categories'
 
 interface Props {
@@ -41,11 +41,11 @@ export function ProductSearch({ onPick, onManual }: Props) {
   return (
     <div className="search">
       <label className="field">
-        <span>Search Open Products Facts</span>
+        <span>Search for your gadget</span>
         <input
           autoFocus
           type="search"
-          placeholder="e.g. headphones, Bose, or a barcode"
+          placeholder="e.g. AirPods Pro 3, Sony WH-1000XM5, or a barcode"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
@@ -54,19 +54,19 @@ export function ProductSearch({ onPick, onManual }: Props) {
       {state.status === 'loading' && <p className="muted">Searching…</p>}
       {state.status === 'error' && <p className="error">{state.message}</p>}
       {state.status === 'done' && state.hits.length === 0 && (
-        <p className="muted">Nothing found. The open catalogue is still small; you can add it by hand.</p>
+        <p className="muted">Nothing found. Try the model name (like “WH-1000XM5”), or add it by hand.</p>
       )}
 
       {state.status === 'done' && state.hits.length > 0 && (
         <ul className="results">
           {state.hits.map((hit) => (
-            <li key={hit.code}>
+            <li key={hit.id}>
               <button className="result" onClick={() => onPick(hit)}>
                 {hit.imageUrl ? <img src={hit.imageUrl} alt="" loading="lazy" /> : <span className="thumb-empty" />}
                 <span className="result-text">
                   <strong>{hit.name}</strong>
                   <small>
-                    {[hit.brand, CATEGORIES[hit.category].label].filter(Boolean).join(' · ')}
+                    {[hit.brand, CATEGORIES[hit.category].label, hit.releaseDate?.slice(0, 4)].filter(Boolean).join(' · ')}
                   </small>
                 </span>
               </button>

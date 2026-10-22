@@ -9,11 +9,14 @@ import { SCENES } from './scenes'
 import { useScene } from './lib/preferences'
 import { AddGadget } from './components/AddGadget'
 import { GadgetDetail } from './components/GadgetDetail'
+import { CheckInPrompt } from './components/CheckInPrompt'
+import { ShareDialog } from './components/ShareDialog'
 
 export default function App() {
   const gadgets = useLiveQuery(() => db.gadgets.orderBy('createdAt').toArray())
   const [scene, setScene] = useScene()
   const [adding, setAdding] = useState(false)
+  const [sharing, setSharing] = useState(false)
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const selected = gadgets?.find((g) => g.id === selectedId)
 
@@ -31,7 +34,17 @@ export default function App() {
       <InkDefs />
       <header className="top">
         <h1>Worth it?</h1>
-        <ScenePicker value={scene} onChange={setScene} />
+        <div className="top-actions">
+          <ScenePicker value={scene} onChange={setScene} />
+          {gadgets && gadgets.length > 0 && (
+            <button className="button ghost share-button" onClick={() => setSharing(true)}>
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                <path d="M12 3 L12 15 M7 8 L12 3 L17 8 M5 13 L5 20 L19 20 L19 13" />
+              </svg>
+              Share
+            </button>
+          )}
+        </div>
         {gadgets && gadgets.length > 0 && (
           <p className="summary">
             {gadgets.length} gadget{gadgets.length === 1 ? '' : 's'} · {money(totalSpent)} spent ·{' '}
@@ -44,6 +57,7 @@ export default function App() {
         {gadgets && gadgets.length === 0 && (
           <p className="empty">Your shelf is empty. Add the first gadget and see if it was worth the money.</p>
         )}
+        {gadgets && <CheckInPrompt gadgets={gadgets} />}
         {/* Keyed by scene so switching redraws the lines from scratch. */}
         {gadgets && (
           <Scene key={scene} gadgets={gadgets} onSelect={(g) => setSelectedId(g.id!)} onAdd={() => setAdding(true)} />
@@ -51,11 +65,13 @@ export default function App() {
       </main>
 
       <footer className="credits">
-        Product data from <a href="https://world.openproductsfacts.org" target="_blank" rel="noreferrer">Open Products Facts</a>{' '}
-        (ODbL). Your inventory stays in this browser.
+        Product data from <a href="https://www.wikidata.org" target="_blank" rel="noreferrer">Wikidata</a> (CC0) and, for
+        barcodes, <a href="https://world.openproductsfacts.org" target="_blank" rel="noreferrer">Open Products Facts</a> (ODbL).
+        Your inventory stays in this browser.
       </footer>
 
       {adding && <AddGadget onClose={() => setAdding(false)} />}
+      {sharing && gadgets && <ShareDialog gadgets={gadgets} onClose={() => setSharing(false)} />}
       {selected && <GadgetDetail key={selected.id} gadget={selected} onClose={() => setSelectedId(null)} />}
     </>
   )

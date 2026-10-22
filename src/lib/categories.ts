@@ -29,20 +29,23 @@ export const FREQUENCIES: Record<Frequency, { label: string; sessionsPerWeek: nu
   rarely: { label: 'Almost never', sessionsPerWeek: 0.05 },
 }
 
-/** Open Products Facts category tags, checked in order; the first match wins. */
+/**
+ * Words from product types, categories or descriptions, checked in order; the first match wins.
+ * Order matters: "tablet computer" must hit tablet before computer, "smartwatch" before watch.
+ */
 const TAG_MATCHERS: [RegExp, Category][] = [
-  [/headphone|earphone|earbud|headset/, 'headphones'],
-  [/smartwatch|watches|wearable|fitness-tracker/, 'watch'],
-  [/smartphone|mobile-phone|cell-phone/, 'phone'],
-  [/laptop|notebook-computer|computers/, 'laptop'],
-  [/tablet/, 'tablet'],
-  [/console|gamepad|game-controller|video-game/, 'console'],
-  [/camera/, 'camera'],
-  [/speaker/, 'speaker'],
-  [/television|monitor|screens/, 'tv'],
+  [/headphone|earphone|earbud|headset|airpods/, 'headphones'],
+  [/smartwatch|watches|\bwatch\b|wearable|fitness.tracker|activity.tracker/, 'watch'],
+  [/smartphone|mobile.phone|cell.phone|iphone|\bphone\b/, 'phone'],
+  [/tablet|ipad|e-reader|kindle/, 'tablet'],
+  [/laptop|notebook|macbook|chromebook|computer/, 'laptop'],
+  [/console|gamepad|game.controller|video.game|handheld/, 'console'],
+  [/camera|camcorder|gopro/, 'camera'],
+  [/speaker|soundbar/, 'speaker'],
+  [/television|\btv\b|monitor|screens|display/, 'tv'],
 ]
 
 export function categoryFromTags(tags: string[] = [], name = ''): Category {
-  const haystack = [...tags, name.toLowerCase()].join(' ')
+  const haystack = [...tags, name].join(' ').toLowerCase()
   return TAG_MATCHERS.find(([re]) => re.test(haystack))?.[1] ?? 'other'
 }

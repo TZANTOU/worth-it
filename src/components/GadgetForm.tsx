@@ -33,7 +33,8 @@ export function GadgetForm({ initial, submitLabel, onSubmit, onBack }: Props) {
 
   const priceNum = Number(price)
   const resaleNum = resaleValue === '' ? undefined : Number(resaleValue)
-  const valid = name.trim() !== '' && priceNum > 0 && purchaseDate !== '' && purchaseDate <= today()
+  const boughtTooEarly = !!initial.releaseDate && purchaseDate !== '' && purchaseDate < initial.releaseDate
+  const valid = name.trim() !== '' && priceNum > 0 && purchaseDate !== '' && purchaseDate <= today() && !boughtTooEarly
 
   const preview = valid
     ? scoreGadget({ category, price: priceNum, purchaseDate, frequency, hoursPerSession, resaleValue: resaleNum })
@@ -46,7 +47,9 @@ export function GadgetForm({ initial, submitLabel, onSubmit, onBack }: Props) {
       name: name.trim(),
       brand: initial.brand,
       offCode: initial.offCode,
+      wikidataId: initial.wikidataId,
       imageUrl: initial.imageUrl,
+      releaseDate: initial.releaseDate,
       category,
       price: priceNum,
       purchaseDate,
@@ -92,7 +95,17 @@ export function GadgetForm({ initial, submitLabel, onSubmit, onBack }: Props) {
           </label>
           <label className="field">
             <span>When did you buy it?</span>
-            <input type="date" max={today()} value={purchaseDate} onChange={(e) => setPurchaseDate(e.target.value)} required />
+            <input
+              type="date"
+              min={initial.releaseDate}
+              max={today()}
+              value={purchaseDate}
+              onChange={(e) => setPurchaseDate(e.target.value)}
+              required
+            />
+            {boughtTooEarly && (
+              <small className="error">It came out on {new Date(initial.releaseDate!).toLocaleDateString()}.</small>
+            )}
           </label>
         </div>
 

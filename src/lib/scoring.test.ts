@@ -54,3 +54,42 @@ describe('categoryFromTags', () => {
     expect(categoryFromTags([], 'mystery box')).toBe('other')
   })
 })
+
+describe('scoreGadget with check-ins', () => {
+  const base = { category: 'headphones', price: 200, purchaseDate: '2025-06-02', frequency: 'daily', hoursPerSession: 1 } as const
+  // Wednesday noon, so the current week (from Monday 2025-12-29) is partly over.
+  const wed = new Date('2025-12-31T12:00:00')
+
+  it('counts an unused week as zero hours', () => {
+    const plain = scoreGadget(base, wed)
+    const skipped = scoreGadget({ ...base, checkIns: [{ week: '2025-12-15', level: 'none' }] }, wed)
+    expect(plain.hoursUsed - skipped.hoursUsed).toBeCloseTo(7)
+  })
+
+  it('counts only the elapsed part of the current week', () => {
+    const plain = scoreGadget(base, wed)
+    const thisWeek = scoreGadget({ ...base, checkIns: [{ week: '2025-12-29', level: 'none' }] }, wed)
+    expect(plain.hoursUsed - thisWeek.hoursUsed).toBeCloseTo(2.5)
+  })
+
+  it('sets the recent pace from recent answers', () => {
+    const lazy = scoreGadget(
+      {
+        ...base,
+        checkIns: ['2025-11-10', '2025-11-17', '2025-11-24', '2025-12-01', '2025-12-08', '2025-12-15', '2025-12-22', '2025-12-29'].map(
+          (week) => ({ week, level: 'none' as const }),
+        ),
+      },
+      wed,
+    )
+    expect(lazy.recentHoursPerWeek).toBe(0)
+    expect(lazy.verdict).toBe('gathering-dust')
+    expect(lazy.weeksToPayoff).toBeNull()
+  })
+
+  it('ignores answers from before the purchase', () => {
+    const plain = scoreGadget(base, wed)
+    const early = scoreGadget({ ...base, checkIns: [{ week: '2025-01-06', level: 'none' }] }, wed)
+    expect(early.hoursUsed).toBeCloseTo(plain.hoursUsed)
+  })
+})
